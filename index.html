@@ -41,8 +41,8 @@
     // Obtén la cámara
     const camera = document.querySelector('#camera');
 
-    // Velocidad de movimiento (ajustada para que sea más rápida)
-    const speed = 0.2;
+    // Velocidad de movimiento
+    const speed = 1;
 
     // Función para mover la cámara con los joysticks del mando de Quest 3
     AFRAME.registerComponent('joystick-movement', {
@@ -50,13 +50,12 @@
         this.el.addEventListener('thumbstickmoved', (event) => {
           const position = this.el.getAttribute('position');
           position.x += event.detail.x * speed;
-          position.z -= event.detail.y * speed; // Invertir el eje Y para que coincida con la dirección del joystick
+          position.z += event.detail.y * speed;
           this.el.setAttribute('position', position);
         });
       }
     });
 
-    // Aplicar el componente de movimiento al control derecho
     document.querySelector('#rightController').setAttribute('joystick-movement', '');
 
     // Función para mover la cámara con las teclas de flecha
