@@ -27,9 +27,10 @@
       </a-entity>
     </a-entity>
 
-    <!-- Controles de VR para Meta Quest -->
-    <a-entity oculus-touch-controls="hand: left" vive-controls="hand: left" windows-motion-controls="hand: left"></a-entity>
-    <a-entity oculus-touch-controls="hand: right" vive-controls="hand: right" windows-motion-controls="hand: right"></a-entity>
+    <!-- Controles de VR para Meta Quest 3 -->
+    <a-entity id="leftController" tracked-controls="hand: left"></a-entity>
+    <a-entity id="rightController" tracked-controls="hand: right"></a-entity>
+    <a-entity hand-tracking-controls></a-entity>
 
     <!-- Obstáculos -->
     <a-entity geometry="primitive: box; width: 2; height: 2; depth: 2" material="color: red" position="0 1 10"></a-entity>
@@ -42,6 +43,20 @@
 
     // Velocidad de movimiento
     const speed = 1;
+
+    // Función para mover la cámara con los joysticks del mando de Quest 3
+    AFRAME.registerComponent('joystick-movement', {
+      init: function () {
+        this.el.addEventListener('thumbstickmoved', (event) => {
+          const position = this.el.getAttribute('position');
+          position.x += event.detail.x * speed;
+          position.z += event.detail.y * speed;
+          this.el.setAttribute('position', position);
+        });
+      }
+    });
+
+    document.querySelector('#rightController').setAttribute('joystick-movement', '');
 
     // Función para mover la cámara con las teclas de flecha
     function setupMovement() {
