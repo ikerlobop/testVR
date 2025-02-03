@@ -27,10 +27,29 @@
       </a-entity>
     </a-entity>
 
-    <!-- Controles de VR para Meta Quest 3 -->
-    <a-entity id="leftController" tracked-controls="hand: left"></a-entity>
-    <a-entity id="rightController" tracked-controls="hand: right"></a-entity>
-    <a-entity hand-tracking-controls></a-entity>
+    <!-- Controlador de la mano derecha -->
+    <a-entity id="rightController" tracked-controls="hand: right">
+      <a-entity 
+        oculus-touch-controls="hand: right"
+        hand-tracking-controls
+        vive-controls="hand: right"
+        valve-index-controls="hand: right"
+        geometry="primitive: sphere; radius: 0.1"
+        material="color: red">
+      </a-entity>
+    </a-entity>
+
+    <!-- Controlador de la mano izquierda -->
+    <a-entity id="leftController" tracked-controls="hand: left">
+      <a-entity 
+        oculus-touch-controls="hand: left"
+        hand-tracking-controls
+        vive-controls="hand: left"
+        valve-index-controls="hand: left"
+        geometry="primitive: sphere; radius: 0.1"
+        material="color: blue">
+      </a-entity>
+    </a-entity>
 
     <!-- Obstáculos -->
     <a-entity geometry="primitive: box; width: 2; height: 2; depth: 2" material="color: red" position="0 1 10"></a-entity>
@@ -44,7 +63,7 @@
     // Velocidad de movimiento
     const speed = 1;
 
-    // Función para mover la cámara con los joysticks del mando de Quest 3
+    // Componente para mover la cámara con el joystick derecho
     AFRAME.registerComponent('joystick-movement', {
       init: function () {
         this.el.addEventListener('thumbstickmoved', (event) => {
@@ -112,3 +131,4 @@
   </script>
 </body>
 </html>
+
