@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Entorno 3D VR</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
@@ -11,12 +11,12 @@
     <!-- Suelo -->
     <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
 
-    <!-- Paredes -->
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50"></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0"></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0"></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: orange" position="50 10 0" rotation="0 -90 0"></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: gray" rotation="90 0 0" position="0 20 0"></a-entity>
+    <!-- Paredes con colisión -->
+    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50" static-body></a-entity>
+    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0" static-body></a-entity>
+    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0" static-body></a-entity>
+    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: orange" position="50 10 0" rotation="0 -90 0" static-body></a-entity>
+    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: gray" rotation="90 0 0" position="0 20 0" static-body></a-entity>
 
     <!-- Cámara con movimiento y controles de VR -->
     <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0">
@@ -27,108 +27,37 @@
       </a-entity>
     </a-entity>
 
-    <!-- Controlador de la mano derecha -->
-    <a-entity id="rightController" tracked-controls="hand: right">
-      <a-entity 
-        oculus-touch-controls="hand: right"
-        hand-tracking-controls
-        vive-controls="hand: right"
-        valve-index-controls="hand: right"
-        geometry="primitive: sphere; radius: 0.1"
-        material="color: red">
-      </a-entity>
-    </a-entity>
+    <!-- Controladores de mano -->
+    <a-entity hand-controls="hand: left; handModelStyle: lowPoly; color: #00FF00"></a-entity>
+    <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #FF0000"></a-entity>
 
-    <!-- Controlador de la mano izquierda -->
-    <a-entity id="leftController" tracked-controls="hand: left">
-      <a-entity 
-        oculus-touch-controls="hand: left"
-        hand-tracking-controls
-        vive-controls="hand: left"
-        valve-index-controls="hand: left"
-        geometry="primitive: sphere; radius: 0.1"
-        material="color: blue">
-      </a-entity>
-    </a-entity>
-
-    <!-- Obstáculos -->
-    <a-entity geometry="primitive: box; width: 2; height: 2; depth: 2" material="color: red" position="0 1 10"></a-entity>
-    <a-entity geometry="primitive: box; width: 2; height: 2; depth: 2" material="color: purple" position="-10 1 -10"></a-entity>
+    <!-- Cubo morado con movimiento fluido -->
+    <a-box id="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2"></a-box>
   </a-scene>
 
   <script>
-    // Obtén la cámara
-    const camera = document.querySelector('#camera');
+    document.addEventListener('DOMContentLoaded', () => {
+      const cube = document.querySelector('#movingCube');
+      let direction = { x: 0.05, z: 0.03 };
+      let bounds = 48;
 
-    // Velocidad de movimiento
-    const speed = 1;
-
-    // Componente para mover la cámara con el joystick derecho
-    AFRAME.registerComponent('joystick-movement', {
-      init: function () {
-        this.el.addEventListener('thumbstickmoved', (event) => {
-          const position = this.el.getAttribute('position');
-          position.x += event.detail.x * speed;
-          position.z += event.detail.y * speed;
-          this.el.setAttribute('position', position);
+      function animateCube() {
+        let position = cube.getAttribute('position');
+        
+        // Rebotar en los límites
+        if (position.x > bounds || position.x < -bounds) direction.x *= -1;
+        if (position.z > bounds || position.z < -bounds) direction.z *= -1;
+        
+        cube.setAttribute('position', {
+          x: position.x + direction.x,
+          y: position.y,
+          z: position.z + direction.z
         });
+        
+        requestAnimationFrame(animateCube);
       }
+      animateCube();
     });
-
-    document.querySelector('#rightController').setAttribute('joystick-movement', '');
-
-    // Función para mover la cámara con las teclas de flecha
-    function setupMovement() {
-      window.addEventListener('keydown', (event) => {
-        const position = camera.getAttribute('position');
-
-        switch (event.key) {
-          case 'ArrowUp':    // Flecha arriba
-            position.z -= speed;
-            break;
-          case 'ArrowDown':  // Flecha abajo
-            position.z += speed;
-            break;
-          case 'ArrowLeft':  // Flecha izquierda
-            position.x -= speed;
-            break;
-          case 'ArrowRight': // Flecha derecha
-            position.x += speed;
-            break;
-        }
-
-        // Actualiza la posición de la cámara
-        camera.setAttribute('position', position);
-      });
-    }
-
-    // Función para generar obstáculos aleatorios
-    function generateObstacles(numObstacles) {
-      const scene = document.querySelector('a-scene');
-      for (let i = 0; i < numObstacles; i++) {
-        const obstacle = document.createElement('a-entity');
-        obstacle.setAttribute('geometry', {
-          primitive: 'box',
-          width: 2,
-          height: 2,
-          depth: 2,
-        });
-        obstacle.setAttribute('material', {
-          color: '#FF0000',
-        });
-        const x = (Math.random() - 0.5) * 80;
-        const z = (Math.random() - 0.5) * 80;
-        obstacle.setAttribute('position', { x, y: 1, z });
-        scene.appendChild(obstacle);
-      }
-    }
-
-    // Configura el movimiento con las teclas de flecha
-    setupMovement();
-
-    // Genera 10 obstáculos aleatorios
-    generateObstacles(10);
   </script>
 </body>
 </html>
-
