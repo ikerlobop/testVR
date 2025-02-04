@@ -28,22 +28,60 @@
     </a-entity>
 
     <!-- Manos mapeadas -->
-    <a-entity hand-tracking-controls="hand: left"></a-entity>
-    <a-entity hand-tracking-controls="hand: right"></a-entity>
+    <a-entity hand-tracking-controls="hand: left">
+      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
+    <a-entity hand-tracking-controls="hand: right">
+      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
 
-    <!-- Cubos en movimiento -->
-    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2">
-      <a-animation attribute="position" from="-10 1 -10" to="10 1 -10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    <!-- Mensaje de manos no detectadas -->
+    <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
+
+    <!-- Cubos en movimiento CORREGIDOS -->
+    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2"
+           animation="property: position; from: -10 1 -10; to: 10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
     </a-box>
-    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2">
-      <a-animation attribute="position" from="10 1 -10" to="-10 1 -10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    
+    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2"
+           animation="property: position; from: 10 1 -10; to: -10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
     </a-box>
-    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2">
-      <a-animation attribute="position" from="-10 1 10" to="10 1 10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    
+    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2"
+           animation="property: position; from: -10 1 10; to: 10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
     </a-box>
-    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2">
-      <a-animation attribute="position" from="10 1 10" to="-10 1 10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    
+    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2"
+           animation="property: position; from: 10 1 10; to: -10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
     </a-box>
   </a-scene>
+
+  <script>
+    const handStatus = document.getElementById('handStatus');
+    const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
+    const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
+    const backupHands = document.querySelectorAll('.backup-hand');
+
+    function checkHandVisibility() {
+      const leftVisible = leftHand.getAttribute('visible');
+      const rightVisible = rightHand.getAttribute('visible');
+
+      if (!leftVisible && !rightVisible) {
+        handStatus.setAttribute('visible', true);
+      } else {
+        handStatus.setAttribute('visible', false);
+      }
+
+      backupHands.forEach((hand, index) => {
+        if ((index === 0 && !leftVisible) || (index === 1 && !rightVisible)) {
+          hand.setAttribute('visible', true);
+        } else {
+          hand.setAttribute('visible', false);
+        }
+      });
+    }
+
+    setInterval(checkHandVisibility, 500);
+  </script>
 </body>
 </html>
