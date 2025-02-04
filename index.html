@@ -38,25 +38,15 @@
     <!-- Mensaje de manos no detectadas -->
     <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
 
-    <!-- Cubos en movimiento CORREGIDOS -->
-    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2"
-           animation="property: position; from: -10 1 -10; to: 10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
-    
-    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2"
-           animation="property: position; from: 10 1 -10; to: -10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
-    
-    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2"
-           animation="property: position; from: -10 1 10; to: 10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
-    
-    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2"
-           animation="property: position; from: 10 1 10; to: -10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
+    <!-- Cubos en movimiento con colisiones -->
+    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2" random-movement></a-box>
   </a-scene>
 
   <script>
+    // Detección de manos visibles
     const handStatus = document.getElementById('handStatus');
     const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
     const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
@@ -82,6 +72,49 @@
     }
 
     setInterval(checkHandVisibility, 500);
+
+    // Componente de movimiento aleatorio con colisión
+    AFRAME.registerComponent('random-movement', {
+      schema: { speed: { type: 'number', default: 2000 } },
+
+      init: function () {
+        this.time = 0;
+        this.collisionBuffer = 3; // Distancia mínima entre cubos
+      },
+
+      tick: function (time) {
+        if (time - this.time > this.data.speed) {
+          this.time = time;
+
+          let newPos;
+          let isColliding;
+          const allCubes = document.querySelectorAll('.movingCube');
+
+          do {
+            newPos = {
+              x: (Math.random() * 20) - 10,
+              y: 1,
+              z: (Math.random() * 20) - 10
+            };
+
+            // Verificar colisiones
+            isColliding = Array.from(allCubes).some(cube => {
+              if (cube === this.el) return false;
+              const pos = cube.getAttribute('position');
+              return Math.hypot(pos.x - newPos.x, pos.z - newPos.z) < this.collisionBuffer;
+            });
+
+          } while (isColliding); // Reintentar si hay colisión
+
+          this.el.setAttribute('animation', {
+            property: 'position',
+            to: `${newPos.x} ${newPos.y} ${newPos.z}`,
+            dur: this.data.speed,
+            easing: 'easeInOutQuad'
+          });
+        }
+      }
+    });
   </script>
 </body>
 </html>
