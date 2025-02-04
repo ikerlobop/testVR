@@ -28,8 +28,11 @@
     </a-entity>
 
     <!-- Controladores de mano -->
-    <a-entity hand-controls="hand: left; handModelStyle: lowPoly; color: #00FF00"></a-entity>
-    <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #FF0000"></a-entity>
+    <a-entity hand-controls="hand: left; handModelStyle: highPoly; color: #00FF00"></a-entity>
+    <a-entity hand-controls="hand: right; handModelStyle: highPoly; color: #FF0000"
+              laser-controls="hand: right">
+    </a-entity>
+
 
     <!-- Cubos en movimiento -->
     <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2">
