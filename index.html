@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entorno 3D VR con Manos Mapeadas</title>
+  <title>Entorno VR Prueba</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
   <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
-    <!-- Suelo -->
+    <!-- Suelo y Paredes-->
     <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
-
-    <!-- Paredes con colisión -->
     <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50" static-body></a-entity>
     <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0" static-body></a-entity>
     <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0" static-body></a-entity>
@@ -27,7 +25,7 @@
       </a-entity>
     </a-entity>
 
-    <!-- Manos mapeadas -->
+    <!-- Manos-->
     <a-entity hand-tracking-controls="hand: left">
       <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
     </a-entity>
@@ -35,7 +33,7 @@
       <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
     </a-entity>
 
-    <!-- Mensaje de manos no detectadas -->
+    <!-- Mensaje manos no detectadas -->
     <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
 
     <!-- Cubos en movimiento con colisiones -->
