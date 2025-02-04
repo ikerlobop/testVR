@@ -3,85 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entorno 3D VR con Manos Mapeadas</title>
+  <title>Entorno 3D VR Caótico</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- Añadir sistema de física -->
+  <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
+  <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking" physics="debug: false; gravity: 0 -1.6 0">
     <!-- Suelo -->
-    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0"></a-entity>
 
     <!-- Paredes con colisión -->
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: orange" position="50 10 0" rotation="0 -90 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: gray" rotation="90 0 0" position="0 20 0" static-body></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50"></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0"></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0"></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 20" material="color: orange" position="50 10 0" rotation="0 -90 0"></a-entity>
+    <a-entity static-body geometry="primitive: plane; width: 100; height: 100" material="color: gray" rotation="90 0 0" position="0 20 0"></a-entity>
 
-    <!-- Cámara con movimiento y controles de VR -->
-    <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0">
-      <a-entity cursor="fuse: true; fuseTimeout: 500"
-                position="0 0 -1"
-                geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                material="color: white; shader: flat">
-      </a-entity>
-    </a-entity>
-
-    <!-- Manos mapeadas -->
-    <a-entity hand-tracking-controls="hand: left">
-      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
-    </a-entity>
-    <a-entity hand-tracking-controls="hand: right">
-      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
-    </a-entity>
-
-    <!-- Mensaje de manos no detectadas -->
-    <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
-
-    <!-- Cubos en movimiento CORREGIDOS -->
+    <!-- Cubos con física caótica -->
     <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2"
-           animation="property: position; from: -10 1 -10; to: 10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
+           dynamic-body="mass: 2; linearDamping: 0.01; angularDamping: 0.01; restitution: 0.8"></a-box>
     
     <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2"
-           animation="property: position; from: 10 1 -10; to: -10 1 -10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
+           dynamic-body="mass: 2; linearDamping: 0.01; angularDamping: 0.01; restitution: 0.8"></a-box>
     
     <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2"
-           animation="property: position; from: -10 1 10; to: 10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
+           dynamic-body="mass: 2; linearDamping: 0.01; angularDamping: 0.01; restitution: 0.8"></a-box>
     
     <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2"
-           animation="property: position; from: 10 1 10; to: -10 1 10; dur: 5000; direction: alternate; loop: true; easing: linear">
-    </a-box>
+           dynamic-body="mass: 2; linearDamping: 0.01; angularDamping: 0.01; restitution: 0.8"></a-box>
+
+    <!-- Resto de la escena (cámara, manos, etc.) -->
   </a-scene>
 
   <script>
-    const handStatus = document.getElementById('handStatus');
-    const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
-    const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
-    const backupHands = document.querySelectorAll('.backup-hand');
-
-    function checkHandVisibility() {
-      const leftVisible = leftHand.getAttribute('visible');
-      const rightVisible = rightHand.getAttribute('visible');
-
-      if (!leftVisible && !rightVisible) {
-        handStatus.setAttribute('visible', true);
-      } else {
-        handStatus.setAttribute('visible', false);
-      }
-
-      backupHands.forEach((hand, index) => {
-        if ((index === 0 && !leftVisible) || (index === 1 && !rightVisible)) {
-          hand.setAttribute('visible', true);
-        } else {
-          hand.setAttribute('visible', false);
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      // Asignar velocidades aleatorias a los cubos
+      document.querySelectorAll('.movingCube').forEach(cube => {
+        const velocity = {
+          x: (Math.random() - 0.5) * 10,  // Entre -5 y 5 m/s
+          y: (Math.random() - 0.5) * 2,   // Pequeño componente vertical
+          z: (Math.random() - 0.5) * 10
+        };
+        cube.body.velocity.set(velocity.x, velocity.y, velocity.z);
+        
+        // Rotación aleatoria
+        const torque = {
+          x: Math.random() * 10,
+          y: Math.random() * 10,
+          z: Math.random() * 10
+        };
+        cube.body.angularVelocity.set(torque.x, torque.y, torque.z);
       });
-    }
-
-    setInterval(checkHandVisibility, 500);
+    });
   </script>
 </body>
 </html>
