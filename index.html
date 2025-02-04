@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entorno 3D VR</title>
+  <title>Entorno 3D VR con Manos Mapeadas</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true">
+  <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
     <!-- Suelo -->
     <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
 
@@ -27,12 +27,9 @@
       </a-entity>
     </a-entity>
 
-    <!-- Controladores de mano -->
-    <a-entity hand-controls="hand: left; handModelStyle: highPoly; color: #00FF00"></a-entity>
-    <a-entity hand-controls="hand: right; handModelStyle: highPoly; color: #FF0000"
-              laser-controls="hand: right">
-    </a-entity>
-
+    <!-- Manos mapeadas -->
+    <a-entity hand-tracking-controls="hand: left"></a-entity>
+    <a-entity hand-tracking-controls="hand: right"></a-entity>
 
     <!-- Cubos en movimiento -->
     <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2">
