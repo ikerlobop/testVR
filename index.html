@@ -32,44 +32,18 @@
     <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #FF0000"></a-entity>
 
     <!-- Cubos en movimiento -->
-    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2"></a-box>
-    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2"></a-box>
-    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2"></a-box>
-    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2"></a-box>
+    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2">
+      <a-animation attribute="position" from="-10 1 -10" to="10 1 -10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    </a-box>
+    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2">
+      <a-animation attribute="position" from="10 1 -10" to="-10 1 -10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    </a-box>
+    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2">
+      <a-animation attribute="position" from="-10 1 10" to="10 1 10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    </a-box>
+    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2">
+      <a-animation attribute="position" from="10 1 10" to="-10 1 10" dur="5000" direction="alternate" repeat="indefinite"></a-animation>
+    </a-box>
   </a-scene>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const cubes = document.querySelectorAll('.movingCube');
-      let directions = Array.from(cubes).map(() => ({ x: (Math.random() - 0.5) * 0.2, z: (Math.random() - 0.5) * 0.2 }));
-      let bounds = 48;
-
-      function animateCubes() {
-        cubes.forEach((cube, index) => {
-          let position = cube.getAttribute('position');
-          
-          // Rebotar en los límites
-          if (position.x > bounds || position.x < -bounds) directions[index].x *= -1;
-          if (position.z > bounds || position.z < -bounds) directions[index].z *= -1;
-          
-          cube.setAttribute('position', {
-            x: position.x + directions[index].x,
-            y: position.y,
-            z: position.z + directions[index].z
-          });
-        });
-        requestAnimationFrame(animateCubes);
-      }
-
-      // Iniciar animación automáticamente
-      animateCubes();
-
-      // Asegurar que la animación continúe en modo VR
-      const scene = document.querySelector('a-scene');
-      scene.addEventListener('enter-vr', () => {
-        animateCubes(); // Reiniciar la animación al entrar en VR
-      });
-    });
-  </script>
 </body>
 </html>
