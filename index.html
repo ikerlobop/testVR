@@ -3,18 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entorno VR Prueba</title>
+  <title>Laberinto VR con Cubos y Colisiones</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
   <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
-    <!-- Suelo y Paredes-->
-    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: blue" position="0 10 -50" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: hotpink" position="0 10 50" rotation="0 180 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: yellow" position="-50 10 0" rotation="0 90 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 20" material="color: orange" position="50 10 0" rotation="0 -90 0" static-body></a-entity>
-    <a-entity geometry="primitive: plane; width: 100; height: 100" material="color: gray" rotation="90 0 0" position="0 20 0" static-body></a-entity>
+    <!-- Suelo -->
+    <a-entity geometry="primitive: plane; width: 30; height: 30" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
+
+    <!-- Laberinto (paredes) -->
+    <!-- Paredes exteriores -->
+    <a-entity geometry="primitive: box; width: 30; height: 4; depth: 1" material="color: gray" position="0 2 -15" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 30; height: 4; depth: 1" material="color: gray" position="0 2 15" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 1; height: 4; depth: 30" material="color: gray" position="-15 2 0" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 1; height: 4; depth: 30" material="color: gray" position="15 2 0" static-body></a-entity>
+
+    <!-- Paredes internas del laberinto -->
+    <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="-10 2 5" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 10; height: 4; depth: 1" material="color: gray" position="-5 2 10" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="10 2 -5" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 10; height: 4; depth: 1" material="color: gray" position="5 2 -10" static-body></a-entity>
+    <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="0 2 0" static-body></a-entity>
 
     <!-- Cámara con movimiento y controles de VR -->
     <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0">
@@ -25,91 +34,81 @@
       </a-entity>
     </a-entity>
 
-    <!-- Manos-->
-    <a-entity hand-tracking-controls="hand: left">
-      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
-    </a-entity>
-    <a-entity hand-tracking-controls="hand: right">
-      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
-    </a-entity>
+    <!-- Controles de movimiento con el mando del Meta Quest -->
+    <a-entity movement-controls="speed: 0.1"></a-entity>
 
-    <!-- Mensaje manos no detectadas -->
-    <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
-
-    <!-- Cubos en movimiento con colisiones -->
-    <a-box class="movingCube" position="-10 1 -10" color="purple" width="2" height="2" depth="2" random-movement></a-box>
-    <a-box class="movingCube" position="10 1 -10" color="red" width="2" height="2" depth="2" random-movement></a-box>
-    <a-box class="movingCube" position="-10 1 10" color="blue" width="2" height="2" depth="2" random-movement></a-box>
-    <a-box class="movingCube" position="10 1 10" color="yellow" width="2" height="2" depth="2" random-movement></a-box>
+    <!-- Cubos en movimiento -->
+    <a-box class="movingCube" position="-12 1 -12" color="purple" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="12 1 -12" color="red" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="-12 1 12" color="blue" width="2" height="2" depth="2" random-movement></a-box>
+    <a-box class="movingCube" position="12 1 12" color="orange" width="2" height="2" depth="2" random-movement></a-box>
   </a-scene>
 
   <script>
-    // Detección de manos visibles
-    const handStatus = document.getElementById('handStatus');
-    const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
-    const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
-    const backupHands = document.querySelectorAll('.backup-hand');
-
-    function checkHandVisibility() {
-      const leftVisible = leftHand.getAttribute('visible');
-      const rightVisible = rightHand.getAttribute('visible');
-
-      if (!leftVisible && !rightVisible) {
-        handStatus.setAttribute('visible', true);
-      } else {
-        handStatus.setAttribute('visible', false);
-      }
-
-      backupHands.forEach((hand, index) => {
-        if ((index === 0 && !leftVisible) || (index === 1 && !rightVisible)) {
-          hand.setAttribute('visible', true);
-        } else {
-          hand.setAttribute('visible', false);
-        }
-      });
-    }
-
-    setInterval(checkHandVisibility, 500);
-
-    // Componente de movimiento aleatorio con colisión
+    // Componente de movimiento aleatorio dentro del laberinto
     AFRAME.registerComponent('random-movement', {
-      schema: { speed: { type: 'number', default: 2000 } },
+      schema: { speed: { type: 'number', default: 2 } },
 
       init: function () {
-        this.time = 0;
-        this.collisionBuffer = 3; // Distancia mínima entre cubos
+        this.direction = new THREE.Vector3(
+          Math.random() * 2 - 1,
+          0,
+          Math.random() * 2 - 1
+        ).normalize();
+        this.collisionBuffer = 2; // Distancia mínima entre cubos para evitar colisiones
       },
 
-      tick: function (time) {
-        if (time - this.time > this.data.speed) {
-          this.time = time;
+      tick: function (time, timeDelta) {
+        const delta = timeDelta / 1000; // Convertir a segundos
+        const currentPos = this.el.getAttribute('position');
 
-          let newPos;
-          let isColliding;
-          const allCubes = document.querySelectorAll('.movingCube');
+        // Calcular nueva posición
+        const newPos = {
+          x: currentPos.x + this.direction.x * delta * this.data.speed,
+          y: currentPos.y,
+          z: currentPos.z + this.direction.z * delta * this.data.speed
+        };
 
-          do {
-            newPos = {
-              x: (Math.random() * 20) - 10,
-              y: 1,
-              z: (Math.random() * 20) - 10
-            };
+        // Verificar colisiones con las paredes del laberinto
+        const walls = document.querySelectorAll('[static-body]');
+        let isColliding = false;
 
-            // Verificar colisiones
-            isColliding = Array.from(allCubes).some(cube => {
-              if (cube === this.el) return false;
-              const pos = cube.getAttribute('position');
-              return Math.hypot(pos.x - newPos.x, pos.z - newPos.z) < this.collisionBuffer;
-            });
+        walls.forEach(wall => {
+          const wallPos = wall.getAttribute('position');
+          const wallGeometry = wall.getAttribute('geometry');
+          const wallWidth = wallGeometry.width || 1;
+          const wallDepth = wallGeometry.depth || 1;
 
-          } while (isColliding); // Reintentar si hay colisión
+          // Detectar colisión con la pared
+          if (Math.abs(newPos.x - wallPos.x) < (wallWidth / 2 + 1) &&
+              Math.abs(newPos.z - wallPos.z) < (wallDepth / 2 + 1)) {
+            isColliding = true;
+          }
+        });
 
-          this.el.setAttribute('animation', {
-            property: 'position',
-            to: `${newPos.x} ${newPos.y} ${newPos.z}`,
-            dur: this.data.speed,
-            easing: 'easeInOutQuad'
-          });
+        // Verificar colisiones con otros cubos
+        const allCubes = document.querySelectorAll('.movingCube');
+        allCubes.forEach(cube => {
+          if (cube === this.el) return; // Ignorar el cubo actual
+          const cubePos = cube.getAttribute('position');
+          const distance = Math.hypot(newPos.x - cubePos.x, newPos.z - cubePos.z);
+
+          // Si la distancia es menor que el buffer de colisión, hay colisión
+          if (distance < this.collisionBuffer) {
+            isColliding = true;
+          }
+        });
+
+        // Si hay colisión, cambiar de dirección
+        if (isColliding) {
+          this.direction = new THREE.Vector3(
+            Math.random() * 2 - 1,
+            0,
+            Math.random() * 2 - 1
+          ).normalize();
+        } else {
+          // Mover el cubo a la nueva posición
+          this.el.setAttribute('position', newPos);
         }
       }
     });
