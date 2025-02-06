@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laberinto VR con Cubos y Colisiones</title>
+  <title>Laberinto VR con Cubos y Manos</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
@@ -34,8 +34,16 @@
       </a-entity>
     </a-entity>
 
-    <!-- Controles de movimiento con el mando del Meta Quest -->
-    <a-entity movement-controls="speed: 0.1"></a-entity>
+    <!-- Manos -->
+    <a-entity hand-tracking-controls="hand: left">
+      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
+    <a-entity hand-tracking-controls="hand: right">
+      <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
+
+    <!-- Mensaje manos no detectadas -->
+    <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
 
     <!-- Cubos en movimiento -->
     <a-box class="movingCube" position="-12 1 -12" color="purple" width="2" height="2" depth="2" random-movement></a-box>
@@ -45,6 +53,33 @@
   </a-scene>
 
   <script>
+    // Detección de manos visibles
+    const handStatus = document.getElementById('handStatus');
+    const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
+    const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
+    const backupHands = document.querySelectorAll('.backup-hand');
+
+    function checkHandVisibility() {
+      const leftVisible = leftHand.getAttribute('visible');
+      const rightVisible = rightHand.getAttribute('visible');
+
+      if (!leftVisible && !rightVisible) {
+        handStatus.setAttribute('visible', true);
+      } else {
+        handStatus.setAttribute('visible', false);
+      }
+
+      backupHands.forEach((hand, index) => {
+        if ((index === 0 && !leftVisible) || (index === 1 && !rightVisible)) {
+          hand.setAttribute('visible', true);
+        } else {
+          hand.setAttribute('visible', false);
+        }
+      });
+    }
+
+    setInterval(checkHandVisibility, 500);
+
     // Componente de movimiento aleatorio dentro del laberinto
     AFRAME.registerComponent('random-movement', {
       schema: { speed: { type: 'number', default: 2 } },
