@@ -3,30 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laberinto VR con Cubos y Manos</title>
+  <title>Laberinto VR con Cubos y Movimiento con Joystick</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
 </head>
 <body>
   <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
-    <!-- Suelo -->
     <a-entity geometry="primitive: plane; width: 30; height: 30" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
 
-    <!-- Laberinto (paredes) -->
-    <!-- Paredes exteriores -->
     <a-entity geometry="primitive: box; width: 30; height: 4; depth: 1" material="color: gray" position="0 2 -15" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 30; height: 4; depth: 1" material="color: gray" position="0 2 15" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 30" material="color: gray" position="-15 2 0" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 30" material="color: gray" position="15 2 0" static-body></a-entity>
 
-    <!-- Paredes internas del laberinto -->
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="-10 2 5" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 10; height: 4; depth: 1" material="color: gray" position="-5 2 10" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="10 2 -5" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 10; height: 4; depth: 1" material="color: gray" position="5 2 -10" static-body></a-entity>
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="0 2 0" static-body></a-entity>
 
-    <!-- Cámara con movimiento y controles de VR -->
-    <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0">
+    <a-entity id="camera" camera look-controls movement-controls="controls: gamepad,keyboard" position="0 1.8 0">
       <a-entity cursor="fuse: true; fuseTimeout: 500"
                 position="0 0 -1"
                 geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
@@ -34,7 +30,6 @@
       </a-entity>
     </a-entity>
 
-    <!-- Manos -->
     <a-entity hand-tracking-controls="hand: left">
       <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
     </a-entity>
@@ -42,10 +37,8 @@
       <a-entity gltf-model="url(path/to/backup-hand.glb)" visible="false" class="backup-hand"></a-entity>
     </a-entity>
 
-    <!-- Mensaje manos no detectadas -->
     <a-entity id="handStatus" text="value: Manos no detectadas; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
 
-    <!-- Cubos en movimiento -->
     <a-box class="movingCube" position="-12 1 -12" color="purple" width="2" height="2" depth="2" random-movement></a-box>
     <a-box class="movingCube" position="12 1 -12" color="red" width="2" height="2" depth="2" random-movement></a-box>
     <a-box class="movingCube" position="-12 1 12" color="blue" width="2" height="2" depth="2" random-movement></a-box>
