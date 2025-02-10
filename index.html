@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laberinto VR con Movimiento y Colisiones</title>
+  <title>Laberinto VR con Manos y Mandos</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- Importar el sistema de física de A-Frame -->
-  <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking" physics="debug: false">
+  <a-scene vr-mode-ui="enabled: true" xr="requiredFeatures: hand-tracking">
     <!-- Suelo -->
-    <a-entity geometry="primitive: plane; width: 30; height: 30" material="color: green" rotation="-90 0 0" position="0 0 0" static-body></a-entity>
+    <a-entity geometry="primitive: plane; width: 30; height: 30" material="color: green" rotation="-90 0 0" position="0 0 0"></a-entity>
 
     <!-- Laberinto (paredes) -->
     <!-- Paredes exteriores -->
@@ -28,13 +26,28 @@
     <a-entity geometry="primitive: box; width: 1; height: 4; depth: 10" material="color: gray" position="0 2 0" static-body></a-entity>
 
     <!-- Cámara con movimiento y controles de VR -->
-    <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0" kinematic-body>
+    <a-entity id="camera" camera look-controls wasd-controls position="0 1.8 0">
       <a-entity cursor="fuse: true; fuseTimeout: 500"
                 position="0 0 -1"
                 geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
                 material="color: white; shader: flat">
       </a-entity>
     </a-entity>
+
+    <!-- Manos con seguimiento de manos o mandos -->
+    <a-entity hand-tracking-controls="hand: left">
+      <a-entity gltf-model="url(https://cdn.glitch.global/5b5f5b5b-5b5b-5b5b-5b5b-5b5b5b5b5b5b/hand-left.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
+    <a-entity hand-tracking-controls="hand: right">
+      <a-entity gltf-model="url(https://cdn.glitch.global/5b5f5b5b-5b5b-5b5b-5b5b-5b5b5b5b5b5b/hand-right.glb)" visible="false" class="backup-hand"></a-entity>
+    </a-entity>
+
+    <!-- Mandos de las Meta Quest -->
+    <a-entity laser-controls="hand: left"></a-entity>
+    <a-entity laser-controls="hand: right"></a-entity>
+
+    <!-- Mensaje si no se detectan manos ni mandos -->
+    <a-entity id="handStatus" text="value: Manos o mandos no detectados; color: red; align: center" position="0 2 -2" visible="false"></a-entity>
 
     <!-- Cubos en movimiento -->
     <a-box class="movingCube" position="-12 1 -12" color="purple" width="2" height="2" depth="2" random-movement></a-box>
@@ -44,6 +57,39 @@
   </a-scene>
 
   <script>
+    // Detección de manos o mandos visibles
+    const handStatus = document.getElementById('handStatus');
+    const leftHand = document.querySelector('[hand-tracking-controls="hand: left"]');
+    const rightHand = document.querySelector('[hand-tracking-controls="hand: right"]');
+    const backupHands = document.querySelectorAll('.backup-hand');
+    const leftController = document.querySelector('[laser-controls="hand: left"]');
+    const rightController = document.querySelector('[laser-controls="hand: right"]');
+
+    function checkHandVisibility() {
+      const leftHandVisible = leftHand.getAttribute('visible');
+      const rightHandVisible = rightHand.getAttribute('visible');
+      const leftControllerVisible = leftController.getAttribute('visible');
+      const rightControllerVisible = rightController.getAttribute('visible');
+
+      // Mostrar mensaje si no se detectan manos ni mandos
+      if (!leftHandVisible && !rightHandVisible && !leftControllerVisible && !rightControllerVisible) {
+        handStatus.setAttribute('visible', true);
+      } else {
+        handStatus.setAttribute('visible', false);
+      }
+
+      // Mostrar manos de respaldo si no se detectan manos
+      backupHands.forEach((hand, index) => {
+        if ((index === 0 && !leftHandVisible) || (index === 1 && !rightHandVisible)) {
+          hand.setAttribute('visible', true);
+        } else {
+          hand.setAttribute('visible', false);
+        }
+      });
+    }
+
+    setInterval(checkHandVisibility, 500);
+
     // Componente de movimiento aleatorio dentro del laberinto
     AFRAME.registerComponent('random-movement', {
       schema: { speed: { type: 'number', default: 2 } },
